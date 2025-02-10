@@ -1,0 +1,187 @@
+USER: 
+
+El campo de argumento es una cadena Telnet que identifica al usuario. La identificación del usuario es la que requiere el servidor para acceder a su sistema de archivos. Este comando será normalmente el primer comando transmitido por el usuario después de que se establezcan las conexiones de control (algunos servidores pueden requerir esto). Información adicional de identificación en forma de contraseña y/o un comando de cuenta también puede ser requerida por algunos servidores. Los servidores pueden permitir que se ingrese un nuevo comando USER en cualquier momento para cambiar el control de acceso y/o la información de contabilidad. Esto tiene el efecto de eliminar cualquier información de usuario, contraseña y cuenta ya proporcionada y comenzar de nuevo la secuencia de inicio de sesión. Todos los parámetros de transferencia permanecen sin cambios y cualquier transferencia de archivo en progreso se completa bajo los parámetros de control de acceso antiguos.
+
+PASS:
+
+El campo de argumento es una cadena Telnet que especifica la contraseña del usuario. Este comando debe ser precedido inmediatamente por el comando de nombre de usuario y, para algunos sitios, completa la identificación del usuario para el control de acceso. Dado que la información de la contraseña es bastante sensible, en general es deseable "enmascararla" o suprimir su visualización. Parece que el servidor no tiene una manera infalible de lograr esto. Por lo tanto, es responsabilidad del proceso de usuario-FTP ocultar la información sensible de la contraseña.
+
+
+ACCT:
+
+El campo de argumento es una cadena Telnet que identifica la cuenta del usuario. El comando no está necesariamente relacionado con el comando USER, ya que algunos sitios pueden requerir una cuenta para iniciar sesión y otros solo para un acceso específico, como almacenar archivos. En el último caso, el comando puede llegar en cualquier momento.
+Hay códigos de respuesta para diferenciar estos casos para la automatización: cuando se requiere información de cuenta para iniciar sesión, la respuesta a un comando PASSword exitoso es el código de respuesta 332. Por otro lado, si no se requiere información de cuenta para iniciar sesión, la respuesta a un comando PASSword exitoso es 230; y si se necesita información de cuenta para un comando emitido más tarde en el diálogo, el servidor debe devolver una respuesta 332 o 532 dependiendo de si almacena (a la espera de recibir el comando ACCounT) o descarta el comando, respectivamente.
+
+
+CWD: 
+
+Este comando permite al usuario trabajar con un directorio o conjunto de datos diferente para el almacenamiento o la recuperación de archivos sin alterar su información de inicio de sesión o contabilidad. Los parámetros de transferencia también permanecen sin cambios. El argumento es una ruta que especifica un directorio o un designador de grupo de archivos dependiente del sistema.
+
+
+CDUP:
+
+Este comando es un caso especial de CWD y se incluye para simplificar la implementación de programas para transferir árboles de directorios entre sistemas operativos que tienen diferentes sintaxis para nombrar el directorio principal. Los códigos de respuesta serán idénticos a los códigos de respuesta de CWD.
+
+
+SMNT:
+
+Este comando permite al usuario montar una estructura de datos de sistema de archivos diferente sin alterar su información de inicio de sesión o contabilidad. Los parámetros de transferencia también permanecen sin cambios. El argumento es una ruta que especifica un directorio o un designador de grupo de archivos dependiente del sistema.
+
+
+REIN:
+
+Este comando termina una sesión de USUARIO, eliminando toda la información de entrada/salida y de cuenta, excepto para permitir que cualquier transferencia en progreso se complete. Todos los parámetros se restablecen a la configuración predeterminada y la conexión de control permanece abierta. Esto es idéntico al estado en que se encuentra un usuario inmediatamente después de que se abre la conexión de control. Se puede esperar que un comando USER siga a continuación.
+
+
+QUIT:
+
+Este comando termina una sesión de USUARIO y, si no hay una transferencia de archivos en progreso, el servidor cierra la conexión de control. Si la transferencia de archivos está en progreso, la conexión permanecerá abierta para la respuesta del resultado y luego el servidor la cerrará. Si el proceso de usuario está transfiriendo archivos para varios USUARIOS pero no desea cerrar y luego reabrir las conexiones para cada uno, entonces se debe usar el comando REIN en lugar de QUIT.
+Un cierre inesperado de la conexión de control hará que el servidor tome la acción efectiva de un aborto (ABOR) y una desconexión (QUIT).
+
+
+PORT:
+
+El argumento es una especificación HOST-PORT para el puerto de datos que se utilizará en la conexión de datos. Existen valores predeterminados tanto para los puertos de datos del usuario como del servidor, y en circunstancias normales, este comando y su respuesta no son necesarios. Si se utiliza este comando, el argumento es la concatenación de una dirección de host de internet de 32 bits y una dirección de puerto TCP de 16 bits. Esta información de dirección se divide en campos de 8 bits y el valor de cada campo se transmite como un número decimal (en representación de cadena de caracteres). Los campos están separados por comas. Un comando de puerto sería: PORT h1,h2,h3,h4,p1,p2 donde h1 son los 8 bits de orden superior de la dirección del host de internet.
+
+
+PASV:
+
+Este comando solicita al server-DTP que "escuche" en un puerto de datos (que no es su puerto de datos predeterminado) y que espere una conexión en lugar de iniciarla al recibir un comando de transferencia. La respuesta a este comando incluye la dirección del host y del puerto en el que el servidor está escuchando.
+
+
+TYPE:
+
+El argumento especifica el tipo de representación como se describe en la Sección sobre Representación y Almacenamiento de Datos. Varios tipos requieren un segundo parámetro. El primer parámetro se denota por un solo carácter Telnet, al igual que el segundo parámetro de Formato para ASCII y EBCDIC; el segundo parámetro para byte local es un número entero decimal para indicar el tamaño de bytes. Los parámetros están separados por un <SP> (Espacio, código ASCII 32).
+Los siguientes códigos se asignan para el tipo:
+                         \    /
+               A - ASCII |    | N - No imprimible
+                         |-><-| T - Efectores de formato Telnet
+               E - EBCDIC|    | C - Control de carro (ASA)
+                         /    \
+               I - Imagen
+
+               L <tamaño de byte> - Byte local Tamaño de byte
+
+El tipo de representación predeterminado es ASCII No imprimible. Si el parámetro de Formato se cambia, y luego solo se cambia el primer argumento, el Formato vuelve al valor predeterminado de No imprimible.
+
+
+STRU:
+
+El argumento es un código de carácter Telnet único que especifica la estructura del archivo descrita en la Sección sobre Representación y Almacenamiento de Datos.
+Los siguientes códigos se asignan para la estructura:
+               F - Archivo (sin estructura de registros)
+               R - Estructura de registros
+               P - Estructura de páginas
+
+
+MODE:
+
+El argumento es un código de carácter Telnet único que especifica los modos de transferencia de datos descritos en la Sección sobre Modos de Transmisión.
+Los siguientes códigos se asignan para los modos de transferencia:
+               S - Flujo
+               B - Bloque
+               C - Comprimido
+
+
+RETR:
+
+Este comando hace que el servidor-DTP transfiera una copia del archivo, especificado en la ruta, al servidor-DTP o usuario-DTP en el otro extremo de la conexión de datos. El estado y el contenido del archivo en el sitio del servidor no se verán afectados.
+
+
+STOR:
+
+Este comando hace que el servidor-DTP acepte los datos transferidos a través de la conexión de datos y los almacene como un archivo en el sitio del servidor. Si el archivo especificado en la ruta ya existe en el sitio del servidor, su contenido será reemplazado por los datos que se están transfiriendo. Se crea un nuevo archivo en el sitio del servidor si el archivo especificado en la ruta no existe.
+
+
+STOU:
+
+Este comando se comporta como STOR, excepto que el archivo resultante se creará en el directorio actual bajo un nombre único para ese directorio. La respuesta 250 Transfer Started debe incluir el nombre generado.
+
+
+
+APPE:
+
+Este comando hace que el servidor-DTP acepte los datos transferidos a través de la conexión de datos y los almacene en un archivo en el sitio del servidor. Si el archivo especificado en la ruta ya existe en el sitio del servidor, los datos se agregarán a ese archivo; de lo contrario, el archivo especificado en la ruta se creará en el sitio del servidor.
+
+
+ALLO:
+
+Este comando puede ser requerido por algunos servidores para reservar suficiente almacenamiento para acomodar el nuevo archivo a ser transferido. El argumento será un número entero decimal que representa el número de bytes (usando el tamaño lógico de byte) de almacenamiento a ser reservado para el archivo. Para archivos enviados con estructura de registro o página, también podría ser necesario un tamaño máximo de registro o página (en bytes lógicos); esto se indica mediante un número entero decimal en un segundo campo de argumento del comando. Este segundo argumento es opcional, pero cuando esté presente, debe estar separado del primero por los tres caracteres Telnet <SP> R <SP>. Este comando debe ser seguido por un comando STORe o APPEnd. El comando ALLO debe ser tratado como un NOOP (sin operación) por aquellos servidores que no requieren que se declare el tamaño máximo del archivo de antemano, y aquellos servidores interesados solo en el tamaño máximo de registro o página deben aceptar un valor ficticio en el primer argumento e ignorarlo.
+
+
+REST:
+
+El campo de argumento representa el marcador del servidor en el cual se debe reiniciar la transferencia de archivos. Este comando no provoca la transferencia de archivos, sino que se salta el archivo hasta el punto de control de datos especificado. Este comando debe ser seguido inmediatamente por el comando de servicio FTP apropiado que provoque la reanudación de la transferencia de archivos.
+
+
+RNFR:
+
+Este comando especifica la ruta antigua del archivo que se va a renombrar. Este comando debe ser seguido inmediatamente por un comando "renombrar a" que especifique la nueva ruta del archivo.
+
+
+RNTO:
+
+Este comando especifica la nueva ruta del archivo especificado en el comando "renombrar desde" inmediatamente anterior. Juntos, los dos comandos causan que se renombre un archivo.
+
+
+ABOR:
+
+Este comando indica al servidor que aborte el comando de servicio FTP anterior y cualquier transferencia de datos asociada. El comando de abortar puede requerir "acción especial", como se discute en la Sección sobre Comandos FTP, para forzar el reconocimiento por parte del servidor. No se tomará ninguna acción si el comando anterior se ha completado (incluida la transferencia de datos). La conexión de control no debe ser cerrada por el servidor, pero la conexión de datos debe ser cerrada.
+Hay dos casos para el servidor al recibir este comando: (1) el comando de servicio FTP ya se completó, o (2) el comando de servicio FTP todavía está en progreso. En el primer caso, el servidor cierra la conexión de datos (si está abierta) y responde con un código 226, indicando que el comando de abortar fue procesado con éxito.
+En el segundo caso, el servidor aborta el servicio FTP en progreso y cierra la conexión de datos, devolviendo un código 426 para indicar que la solicitud de servicio terminó de manera anormal. Luego, el servidor envía un código 226, indicando que el comando de abortar fue procesado con éxito.
+
+
+DELE:
+
+Este comando hace que el archivo especificado en la ruta sea eliminado en el sitio del servidor. Si se desea un nivel adicional de protección (como la consulta, "¿Realmente deseas eliminar?"), debe ser proporcionado por el proceso de usuario-FTP.
+
+
+RMD:
+
+Este comando hace que el directorio especificado en la ruta sea eliminado como un directorio (si la ruta es absoluta) o como un subdirectorio del directorio de trabajo actual (si la ruta es relativa).
+
+
+MKD: 
+
+Este comando hace que el directorio especificado en la ruta sea creado como un directorio (si la ruta es absoluta) o como un subdirectorio del directorio de trabajo actual (si la ruta es relativa).
+
+
+PWD:
+
+Este comando hace que el nombre del directorio de trabajo actual sea devuelto en la respuesta.
+
+
+LIST:
+
+Este comando hace que una lista sea enviada desde el servidor al DTP pasivo. Si la ruta especifica un directorio u otro grupo de archivos, el servidor debe transferir una lista de archivos en el directorio especificado. Si la ruta especifica un archivo, el servidor debe enviar información actual sobre el archivo. Un argumento nulo implica el directorio de trabajo actual o predeterminado del usuario. La transferencia de datos se realiza a través de la conexión de datos en tipo ASCII o tipo EBCDIC. (El usuario debe asegurarse de que el TIPO sea apropiadamente ASCII o EBCDIC). Dado que la información sobre un archivo puede variar ampliamente de un sistema a otro, esta información puede ser difícil de usar automáticamente en un programa, pero puede ser bastante útil para un usuario humano.
+
+
+
+NLST:
+
+Este comando hace que se envíe una lista de directorios desde el servidor al sitio del usuario. La ruta debe especificar un directorio u otro descriptor de grupo de archivos específico del sistema; un argumento nulo implica el directorio actual. El servidor devolverá un flujo de nombres de archivos y ninguna otra información. Los datos se transferirán en tipo ASCII o EBCDIC sobre la conexión de datos como cadenas de rutas válidas separadas por <CRLF> o <NL>. (Nuevamente, el usuario debe asegurarse de que el TIPO sea correcto). Este comando está destinado a devolver información que puede ser utilizada por un programa para procesar automáticamente los archivos. Por ejemplo, en la implementación de una función "obtener múltiple".
+
+
+SITE:
+
+Este comando es utilizado por el servidor para proporcionar servicios específicos de su sistema que son esenciales para la transferencia de archivos, pero no lo suficientemente universales como para ser incluidos como comandos en el protocolo. La naturaleza de estos servicios y la especificación de su sintaxis pueden ser indicadas en una respuesta al comando HELP SITE.
+
+
+SYST:
+
+Este comando se utiliza para averiguar el tipo de sistema operativo en el servidor. La respuesta deberá tener como su primera palabra uno de los nombres de sistema enumerados en la versión actual del documento de Números Asignados.
+
+
+STAT:
+
+Este comando hará que se envíe una respuesta de estado a través de la conexión de control en forma de una respuesta. El comando puede ser enviado durante una transferencia de archivos (junto con las señales Telnet IP y Synch; véase la Sección sobre Comandos FTP), en cuyo caso el servidor responderá con el estado de la operación en progreso, o puede ser enviado entre transferencias de archivos. En este último caso, el comando puede tener un campo de argumento. Si el argumento es una ruta, el comando es análogo al comando "listar", excepto que los datos se transferirán a través de la conexión de control. Si se da una ruta parcial, el servidor puede responder con una lista de nombres de archivos o atributos asociados con esa especificación. Si no se da ningún argumento, el servidor debe devolver información de estado general sobre el proceso FTP del servidor. Esto debe incluir valores actuales de todos los parámetros de transferencia y el estado de las conexiones.
+
+
+HELP:
+
+Este comando hará que el servidor envíe información útil sobre su estado de implementación a través de la conexión de control al usuario. El comando puede tomar un argumento (por ejemplo, cualquier nombre de comando) y devolver información más específica como respuesta. La respuesta es de tipo 211 o 214. Se sugiere que se permita el comando HELP antes de ingresar un comando USER. El servidor puede usar esta respuesta para especificar parámetros dependientes del sitio, por ejemplo, en respuesta a HELP SITE.
+
+
+NOOP:
+
+Este comando no afecta ningún parámetro ni comandos ingresados previamente. No especifica ninguna acción más allá de que el servidor envíe una respuesta de OK.

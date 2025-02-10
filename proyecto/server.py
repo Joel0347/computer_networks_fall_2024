@@ -151,14 +151,14 @@ class ServerFTP:
         client_socket.send(response.encode())
 
     def handle_cwd(self, client_socket, args):
+        print(args)
         if not args or len(args) > 1:
             client_socket.send(b"501 Sintaxis invalida\r\n")
             return
         try:
-            print(args[0])
             if args[0] == '..':
                 print('Entrando en CDUP desde CWD')
-                self.handle_cdup(client_socket, args)
+                self.handle_cdup(client_socket, [])
                 return
         
             new_path = (self.current_dir / args[0]).resolve()

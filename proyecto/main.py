@@ -1,4 +1,3 @@
-# streamlit_interface.py
 import streamlit as st
 from full_client import FTPClient  # Importa tu clase FTPClient modificada
 import re
@@ -6,51 +5,32 @@ import os
 import socket
 from pathlib import Path
 
+base_dir = "C:\\Users\\Joel\\Documents\\GitHub\\computer_networks_fall_2024\\proyecto"
+
 # Función para inicializar el cliente FTP
 def initialize_ftp_client():
     if 'ftp_client' not in st.session_state:
         st.session_state.ftp_client = FTPClient()  # Crea una instancia del cliente FTP
         st.session_state.ftp_client.start()  # Inicia la conexión FTP
 
-# Función principal
-def main():
-    st.title("Interfaz de Cliente FTP")
+# Función para actualizar la barra lateral
+def update_sidebar():
+    st.sidebar.subheader("Archivos para descargar")
+    for f in Path(base_dir).iterdir():
+        if f.is_file():
+            st.sidebar.write(f.name)
 
-    # Inicializar el cliente FTP
-    initialize_ftp_client()
-
-    # Inicializar la lista de respuestas si no existe
-    if 'client_responses' not in st.session_state:
-        st.session_state.client_responses = []
-
-    # Entrada de comandos
-    command = st.sidebar.text_input("Ingrese un comando FTP:", key="command_input")
-    press = st.sidebar.button("Ejecutar comando")
-
-    if press and command:
+# Función para manejar la ejecución del comando
+def execute_command():
+    command = st.session_state.command_input.strip()
+    if command:
         # Procesar el comando
-        cmd_parts = command.strip().split()
+        cmd_parts = command.split()
         cmd = cmd_parts[0].upper()
         args = cmd_parts[1:] if len(cmd_parts) > 1 else []
 
         try:
-            # Manejo del comando HELP
-            if cmd == "HELP":
-                if args:
-                    cmd_help = args[0].upper()
-                    if cmd_help in st.session_state.ftp_client.commands_help:
-                        response = f"{cmd_help}: {st.session_state.ftp_client.commands_help[cmd_help]}"
-                    else:
-                        response = f"Comando '{cmd_help}' no reconocido"
-                else:
-                    response = "\nComandos disponibles:\n"
-                    for cmd_name, desc in sorted(st.session_state.ftp_client.commands_help.items()):
-                        response += f"{cmd_name}: {desc}\n"
-                # Insertar la respuesta al inicio de la lista
-                st.session_state.client_responses.insert(0, response)
-
-            # Manejo de comandos que requieren modo pasivo
-            elif cmd in ["LIST", "RETR", "STOR", "APPE", "NLST"]:
+            if cmd in ["LIST", "RETR", "STOR", "APPE", "NLST"]:
                 # Enviar el comando PASV y obtener la respuesta
                 response = st.session_state.ftp_client.send_command("PASV")
                 st.session_state.client_responses.insert(0, response)
@@ -122,6 +102,34 @@ def main():
         except Exception as e:
             st.session_state.client_responses.insert(0, f"Error: {e}")
 
+# Función principal
+def main():
+    st.title("Interfaz de Cliente FTP")
+
+    # Inicializar el cliente FTP
+    initialize_ftp_client()
+
+    # Inicializar el valor del campo de texto si no existe
+    if 'command_input' not in st.session_state:
+        st.session_state.command_input = ""
+        
+    # Inicializar la lista de respuestas si no existe
+    if 'client_responses' not in st.session_state:
+        st.session_state.client_responses = []
+
+    if st.button("Borrar comando"):
+        st.session_state.command_input = ""
+
+    # Entrada de comandos
+    st.text_input(
+        "Ingrese un comando FTP:",
+        key="command_input",
+        on_change=execute_command,  # Ejecutar el comando al presionar Enter
+    )
+        
+    update_sidebar()
+
+    # Mostrar respuestas
     if 'client_responses' in st.session_state:
         st.text_area("Respuestas:", value="\n".join(st.session_state.client_responses), height=300)
 

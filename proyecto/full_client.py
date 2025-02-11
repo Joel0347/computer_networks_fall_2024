@@ -8,41 +8,6 @@ class FTPClient:
         self.host = host
         self.port = port
         self.sock = None  # Inicializar el socket como None
-        self.commands_help = {
-            "USER": "Especifica el usuario",
-            "PASS": "Especifica la contraseña",
-            "PWD" : "Muestra el directorio actual",
-            "CWD" : "Cambia el directorio de trabajo",
-            "CDUP": "Cambia el directorio de trabajo al directorio padre",
-            "LIST": "Lista archivos y directorios",
-            "MKD" : "Crea un directorio",
-            "RMD" : "Elimina un directorio",
-            "DELE": "Elimina un archivo",
-            "RNFR": "Especifica el archivo a renombrar",
-            "RNTO": "Especifica el nuevo nombre",
-            "QUIT": "Cierra la conexión",
-            "HELP": "Muestra la ayuda",
-            "SYST": "Muestra información del sistema",
-            "NOOP": "No realiza ninguna operación",
-            "ACCT": "Especifica la cuenta del usuario",
-            "SMNT": "Monta una estructura de sistema de archivos",
-            "REIN": "Reinicia la conexión",
-            "PORT": "Especifica dirección y puerto para conexión",
-            "PASV": "Entra en modo pasivo",
-            "TYPE": "Establece el tipo de transferencia",
-            "STRU": "Establece la estructura de archivo",
-            "MODE": "Establece el modo de transferencia",
-            "RETR": "Recupera un archivo",
-            "STOR": "Almacena un archivo",
-            "STOU": "Almacena un archivo con nombre único",
-            "APPE": "Añade datos a un archivo",
-            "ALLO": "Reserva espacio",
-            "REST": "Reinicia transferencia desde punto",
-            "ABOR": "Aborta operación en progreso",
-            "SITE": "Comandos específicos del sitio",
-            "STAT": "Retorna estado actual",
-            "NLST": "Lista nombres de archivos"
-        }
         self.downloads_folder = str(Path.cwd() / "Downloads")  # Carpeta local Downloads
         # Crear la carpeta si no existe
         os.makedirs(self.downloads_folder, exist_ok=True)
